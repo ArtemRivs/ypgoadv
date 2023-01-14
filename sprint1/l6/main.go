@@ -7,17 +7,19 @@ import (
 
 func main() {
 
-	start := time.Now()
+	// start := time.Now()
 
-	for i := 0; i < 9999; i++ {
+	// for i := 0; i < 9999; i++ {
 
-	}
-	stop := time.Now()
+	// }
+	// stop := time.Now()
 
-	fmt.Println(stop.Sub(start))
-	
-    // truncTime := допишите код
-    fmt.Println(truncTime)	
-	
+	// fmt.Println(stop.Sub(start))
+	// now := time.Now()
+	// truncTime := now.Truncate(time.Hour)
+	now := time.Now()
+	truncTime := now.Truncate(time.Hour)
+
+	fmt.Println(truncTime)
 
 }
