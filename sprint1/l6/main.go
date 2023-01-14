@@ -15,5 +15,9 @@ func main() {
 	stop := time.Now()
 
 	fmt.Println(stop.Sub(start))
+	
+    // truncTime := допишите код
+    fmt.Println(truncTime)	
+	
 
 }
