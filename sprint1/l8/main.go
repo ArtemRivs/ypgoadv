@@ -7,9 +7,11 @@ import (
 
 func main() {
 
-	birthday := time.Date(1993+100, time.November, 26, 0, 0, 0, 0, time.Local)
-	duration := birthday.Sub(time.Now())
-	days := int(duration.Hours() / 24)
-	fmt.Println(days)
+    time.AfterFunc(1*time.Second, func() {
+        fmt.Println("hi from AfterFunc")
+    })
+    fmt.Println("hi")
+    time.Sleep(2 * time.Second)
+    fmt.Println("goodbye")
 
 }
