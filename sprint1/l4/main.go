@@ -1,11 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"time"
+    "fmt"
+    "log"
+    "time"
 )
 
 func main() {
-	now := time.Now()
-	fmt.Println(now.Format("Mon 02 Jan 2006 15:04:05 MST"))
-}
+    currentTimeStr := "2021-09-19T15:59:41+03:00"
+    // скопируйте блок себе в IDE и допишите код
+    layout := "..."
+    currentTime, err := time.Parse(layout, currentTimeStr)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Println(currentTime)
+} 
