@@ -38,9 +38,35 @@ func (d *DB) SelectUser(ctx context.Context, email string) (User, error) {
 }
 
 type Handler struct {
-	db *DB
+    db *DB
 }
 
 type Request struct {
-	Email string
+    Email string
 }
+
+type Response struct {
+    User User
+}
+
+func (h *Handler) HandleAPI(ctx context.Context, req Request) (Response, error) {
+    u, err := h.db.SelectUser(ctx, req.Email)
+    if err != nil {
+        return Response{}, err
+    }
+
+    return Response{User: u}, nil
+}
+
+func main() {
+    cfg := Config{SelectTimeout: timeoutDur}
+    db := DB{cfg: cfg}
+    handler := Handler{db: &db}
+    ctx, cancel := context.WithCancel(context.Background())
+    
+    time.AfterFunc(cancelDur, cancel)
+
+    req := Request{Email: "test@yandex.ru"}
+    resp, err := handler.HandleAPI(ctx, req)
+    fmt.Println(resp, err)
+} 
