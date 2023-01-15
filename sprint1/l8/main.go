@@ -19,11 +19,18 @@ func main() {
 	// t := <-timer.C                          // ожидаем срабатывания таймера
 	// fmt.Println(t.Sub(start).Seconds())     // выводим разницу во времени
 
+	// start := time.Now()
+	// ticker := time.NewTicker(2 * time.Second)
+	// for i := 0; i < 10; i++ {
+	// 	t := <-ticker.C
+	// 	fmt.Println(int(t.Sub(start).Seconds()))
+	// }
+
 	start := time.Now()
-	ticker := time.NewTicker(2 * time.Second)
-	for i := 0; i < 10; i++ {
-		t := <-ticker.C
-		fmt.Println(int(t.Sub(start).Seconds()))
-	}
+	fmt.Println(start.Second())
+	time.Sleep(2 * time.Second)
+	end := time.Now()
+	dur := end.Sub(start)
+	fmt.Println(dur.Nanoseconds()) // выводим разницу во времени
 
 }
