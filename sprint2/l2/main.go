@@ -1,62 +1,46 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"time"
+    "context"
+    "fmt"
+    "time"
 )
 
+const (
+    waitDur    = 1 * time.Second
+    cancelDur  = 2000 * time.Millisecond
+    timeoutDur = 500 * time.Millisecond
+)
+
+type Config struct {
+    SelectTimeout time.Duration
+}
+
 type DB struct {
+    cfg Config
 }
 
 type User struct {
-	Name string
+    Name string
 }
 
 func (d *DB) SelectUser(ctx context.Context, email string) (User, error) {
-	timer := time.NewTimer(1 * time.Second)
-	select {
-	case <-timer.C:
-		return User{Name: "Gosha"}, nil
-	case <-ctx.Done():
-		// 1 - допишите получение сигнала отмены контекста
+    ctx2, cancel := /* 1 — допишите здесь создание контекста с тайм-аутом */;
+    defer cancel()
 
-		return User{}, fmt.Errorf("context canceled")
-	}
+    timer := time.NewTimer(waitDur)
+    select {
+    case <-timer.C:
+        return User{Name: "Gosha"}, nil
+    case <-ctx2.Done():
+        return User{}, ctx2.Err()
+    }
 }
 
 type Handler struct {
-	db *DB
+    db *DB
 }
 
 type Request struct {
-	Email string
-}
-
-type Response struct {
-	User User
-}
-
-func (h *Handler) HandleAPI(ctx context.Context, req Request) (Response, error) {
-	u, err := h.db.SelectUser(ctx, req.Email)
-	if err != nil {
-		return Response{}, err
-	}
-
-	return Response{User: u}, nil
-}
-
-func main() {
-	db := DB{}
-	handler := Handler{db: &db}
-	ctx, cancel := context.WithCancel(context.Background())
-	time.AfterFunc(1500*time.Millisecond, cancel)
-	// 2 - допишите код, который отменяет контекст через 500 миллисекунд
-
-	// когда запустите код и он отработает успешно,
-	// попробуйте заменить длительность на 2000 миллисекунд
-
-	req := Request{Email: "test@yandex.ru"}
-	resp, err := handler.HandleAPI(ctx, req)
-	fmt.Println(resp, err)
+    Email string
 }
