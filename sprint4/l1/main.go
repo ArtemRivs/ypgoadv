@@ -17,7 +17,6 @@ func main() {
 	if err := json.Unmarshal([]byte(rawValue), &value); err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v", value)
-	fmt.Println()
+	fmt.Printf("%+v\n", value)
 
 }
