@@ -1,22 +1,29 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+    "encoding/json"
+    "fmt"
+    "log"
 )
 
-type Tree struct {
-	Value float32 `json:"value"`
-	Left  *Tree   `json:"left,omitempty"`
-	Right *Tree   `json:"right,omitempty"`
+type Data struct {
+    // определите здесь нужные поля
 }
 
 func main() {
-	rawValue := `{ "value": 100.0, "left": { "value": 180.0 } }`
-	value := Tree{}
-	if err := json.Unmarshal([]byte(rawValue), &value); err != nil {
-		panic(err)
-	}
-	fmt.Printf("%+v\n", value)
-
-}
+    foo := []Data{
+        {
+            ID:   10,
+            Name: "John Doe",
+        },
+        {
+            Name:    "Вася",
+            Company: "Яндекс",
+        },
+    }
+    out, err := json.Marshal(foo)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Println(string(out))
+} 
