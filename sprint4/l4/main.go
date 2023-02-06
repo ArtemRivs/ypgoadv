@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 )
 
 type User struct {
@@ -21,5 +22,8 @@ func main() {
 	}
 	fmt.Println("json_data:", json_data)
 	fmt.Println("string json_data:", string(json_data))
+
+	fmt.Println("USER:", os.Getenv("USER"))
+	fmt.Println("USER_ABUSER:", os.Getenv("USER_ABUSER"))
 
 }
