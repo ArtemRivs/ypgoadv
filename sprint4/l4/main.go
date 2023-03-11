@@ -5,16 +5,22 @@ import (
 	"sync"
 )
 
-var wg sync.WaitGroup
-
 func main() {
-	n := 10
-	wg.Add(10)
-	for i := 0; i < n-1; i++ {
-		go func(v int) {
-			fmt.Println(v)
-			wg.Done()
-		}(i)
-	}
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		//time.Sleep(50 * time.Millisecond)
+		fmt.Println(1)
+		wg.Done()
+	}()
+	wg.Add(-1)
+
+	go func() {
+		fmt.Println(2)
+		wg.Done()
+	}()
+
 	wg.Wait()
+	fmt.Println(3)
 }
