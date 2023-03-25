@@ -1,21 +1,40 @@
 package main
 
 import (
+	"database/sql"
 	"log"
-	//"net/http"
 
+	_ "github.com/lib/pq"
+	//"net/http"
 	// "github.com/ArtemRivs/shortlinker/internal/handlers/middleware"
-	"github.com/ArtemRivs/ypgoadv/sprint4/l5/internal/storage"
 )
 
 const (
-	DatabaseDsn = ""
+	DatabaseDsn = "firstbase"
 )
 
 func main() {
 
-	ls := storage.New(DatabaseDsn)
-	defer ls.Close()
+	log.Println("started")
+
+	db, err := sql.Open("postgres", DatabaseDsn)
+	if err != nil {
+		log.Println("Connection error:", err)
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Println("Ping error:", err)
+		panic(err)
+	}
+	// _, err = db.Exec("CREATE TABLE IF NOT EXISTS links (short_code VARCHAR NOT NULL, origin_url TEXT UNIQUE, user_id VARCHAR, is_deleted BOOLEAN DEFAULT FALSE);")
+
+	// if err != nil {
+	// 	panic(err)
+	// }
+
 	// r := chi.NewRouter()
 	// r.Use(middleware.GzipHandler)
 	// r.Use(middleware.AuthHandler)
@@ -42,6 +61,6 @@ func main() {
 	// 	handlers.DeleteUserLinksBatch(w, r, ls)
 	// })
 
-	log.Println("started")
+	// log.Println("started")
 	// log.Fatal(http.ListenAndServe(ServerAddr, r))
 }
