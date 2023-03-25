@@ -2,22 +2,26 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
-	//"net/http"
-	// "github.com/ArtemRivs/shortlinker/internal/handlers/middleware"
 )
 
 const (
-	DatabaseDsn = "firstbase"
+	host     = "localhost"
+	port     = "5432"
+	user     = "testuser"
+	password = "0987654321"
+	dbname   = "firstbase"
 )
 
 func main() {
 
 	log.Println("started")
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
-	db, err := sql.Open("postgres", DatabaseDsn)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Println("Connection error:", err)
 		panic(err)
@@ -29,38 +33,10 @@ func main() {
 		log.Println("Ping error:", err)
 		panic(err)
 	}
-	// _, err = db.Exec("CREATE TABLE IF NOT EXISTS links (short_code VARCHAR NOT NULL, origin_url TEXT UNIQUE, user_id VARCHAR, is_deleted BOOLEAN DEFAULT FALSE);")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS links (short_code VARCHAR NOT NULL, origin_url TEXT UNIQUE, user_id VARCHAR, is_deleted BOOLEAN DEFAULT FALSE);")
 
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// r := chi.NewRouter()
-	// r.Use(middleware.GzipHandler)
-	// r.Use(middleware.AuthHandler)
-
-	// r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
-	// 	handlers.GetFullLink(w, r, ls)
-	// })
-	// r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	handlers.GetShortLink(w, r, ls, cfg.BaseURL)
-	// })
-	// r.Post("/api/shorten", func(w http.ResponseWriter, r *http.Request) {
-	// 	handlers.GetShortLinkJSON(w, r, ls, cfg.BaseURL)
-	// })
-	// r.Get("/api/user/urls", func(w http.ResponseWriter, r *http.Request) {
-	// 	handlers.GetUserLinks(w, r, ls, cfg.BaseURL)
-	// })
-	// r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-	// 	handlers.DBPing(w, r, cfg.DatabaseDsn)
-	// })
-	// r.Post("/api/shorten/batch", func(w http.ResponseWriter, r *http.Request) {
-	// 	handlers.GetShortLinksBatchJSON(w, r, ls, cfg.BaseURL)
-	// })
-	// r.Delete("/api/user/urls", func(w http.ResponseWriter, r *http.Request) {
-	// 	handlers.DeleteUserLinksBatch(w, r, ls)
-	// })
-
-	// log.Println("started")
-	// log.Fatal(http.ListenAndServe(ServerAddr, r))
+	if err != nil {
+		log.Println("table create error:", err)
+		panic(err)
+	}
 }
