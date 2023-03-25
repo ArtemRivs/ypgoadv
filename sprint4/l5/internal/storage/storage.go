@@ -6,9 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/ArtemRivs/shortlinker/internal/storage/filestorage"
-	"github.com/ArtemRivs/shortlinker/internal/storage/memostorage"
-	"github.com/ArtemRivs/shortlinker/internal/storage/sqlstorage"
+	"github.com/ArtemRivs/ypgoadv/sprint4/l5/internal/storage/sqlstorage"
 )
 
 type Storage interface {
@@ -28,13 +26,7 @@ func New(dataBaseDsn, fileStoragePath string) Storage {
 		ls = sqlstorage.New(dataBaseDsn)
 		return ls
 	}
-	if fileStoragePath != "" {
-		log.Println("use file-storage:", fileStoragePath)
-		ls := filestorage.New(fileStoragePath)
-		return ls
-	}
-	ls = memostorage.New()
-	return ls
+	return nil
 }
 
 func GenerateCode() string {

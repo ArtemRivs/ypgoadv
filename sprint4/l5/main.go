@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"net/http"
+	//"net/http"
 
 	// "github.com/ArtemRivs/shortlinker/internal/handlers/middleware"
 	"github.com/ArtemRivs/ypgoadv/sprint4/l5/internal/storage"
@@ -42,6 +42,6 @@ func main() {
 	// 	handlers.DeleteUserLinksBatch(w, r, ls)
 	// })
 
-	log.Println("server started")
-	log.Fatal(http.ListenAndServe(ServerAddr, r))
+	log.Println("started")
+	// log.Fatal(http.ListenAndServe(ServerAddr, r))
 }
