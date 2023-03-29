@@ -1,25 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"time"
 )
 
-func sender(c chan<- string) {
-	c <- "Hello"
-}
-
-func resiver(c <-chan string) {
-	// msg := <-c
-	fmt.Printf("%s world!\n", <-c)
-}
-
 func main() {
 
-	channel := make(chan string)
-	go sender(channel)
-	go resiver(channel)
-
+	channel := make(chan int)
+	for i := 0; i > 10; i++ {
+		go func(i int) {
+			time.Sleep(10 * time.Millisecond)
+			channel <- i
+		}(i)
+	}
+	channel <- 1
 	time.Sleep(time.Second)
 
 }
