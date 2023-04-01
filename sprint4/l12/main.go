@@ -1,37 +1,31 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"sync"
 	"time"
 )
 
-type bill struct {
-	mu     *sync.Mutex
-	amount map[int]int
-}
-
-func (b *bill) subAmount(amount int) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	if b.amount[1] > 0 {
-		time.Sleep(10 * time.Millisecond)
-		b.amount[1] -= amount
+func worker(ctx context.Context) {
+	for {
+		fmt.Println("wait")
+		select {
+		case <-ctx.Done():
+			fmt.Println("cancel")
+			return
+		default:
+		}
 	}
 }
 
 func main() {
 
-	userBill := &bill{
-		mu:     &sync.Mutex{},
-		amount: map[int]int{1: 1000},
-	}
+	ctx, cancel := context.WithCancel(context.Background())
+	go worker(ctx)
+	time.Sleep(time.Second)
 
-	for i := 0; i < 1000; i++ {
-		go userBill.subAmount(10)
-	}
+	cancel()
 
 	time.Sleep(time.Second)
-	fmt.Println(userBill.amount)
 
 }
