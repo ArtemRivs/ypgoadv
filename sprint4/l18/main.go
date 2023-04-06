@@ -1,83 +1,123 @@
 package main
 
 import (
-    "fmt"
-    "sync"
-    "time"
+	"fmt"
+	"sync"
+	"time"
 )
 
+// Структура Cond содержит синхронизационный примитив Locker и канал q
 type Cond struct {
-    L sync.Locker
-    q chan struct{}
+	L sync.Locker
+	q chan struct{}
 }
 
+// NewCond создает новый объект Cond, используя заданный Locker и канал
 func NewCond(l sync.Locker) *Cond {
-    return &Cond{L: l, q: make(chan struct{})}
+	return &Cond{L: l, q: make(chan struct{})}
 }
 
+// Wait вызывается для ожидания на событии Cond
 func (c *Cond) Wait() {
-    c.L.Unlock()
-    c.q <- struct{}{}
-    c.L.Lock()
+	// Освободить блокировку Locker
+	c.L.Unlock()
+	// Отправить пустую структуру в канал q
+	c.q <- struct{}{}
+	// Заблокировать Locker
+	c.L.Lock()
 }
 
+// Signal отправляет сигнал на событие Cond
 func (c *Cond) Signal() {
-    select {
-    case <-c.q:
-    default:
-    }
+	// Выбор (select) - обеспечивает неблокирующую отправку сигнала в канал q
+	select {
+	// Если значение из канала q считывается успешно, значит оно уже было в канале и нам не нужно отправлять новое
+	case <-c.q:
+	// Если в канале ничего нет, то отправляем новое значение в канал q
+	default:
+	}
 }
 
+// Broadcast отправляет сигнал на событие Cond всем ожидающим горутинам
 func (c *Cond) Broadcast() {
-    for {
-        select {
-        case <-c.q:
-        default:
-            return
-        }
-    }
+	// Бесконечный цикл выбора (select)
+	for {
+		select {
+		// Если значение из канала q считывается успешно, значит оно уже было в канале и нам не нужно отправлять новое
+		case <-c.q:
+		// Если в канале ничего нет, то возвращаемся из метода, отправив сигнал всем ожидающим горутинам
+		default:
+			return
+		}
+	}
 }
 
+// Структура State содержит флаг ready, который показывает, готова ли система к работе,
+// и объект Cond, который используется для ожидания, пока система будет готова
 type State struct {
-    ready bool
-    cond  *Cond
+	ready bool
+	cond  *Cond
 }
 
+// NewState создает новый объект State и возвращает его
 func NewState() *State {
-    return &State{cond: NewCond(&sync.Mutex{})}
+	// Создаем объект Cond, используя новый Mutex в качестве Locker
+	return &State{cond: NewCond(&sync.Mutex{})}
 }
 
+// WaitReady вызывается для ожидания, пока флаг ready не будет установлен
 func (s *State) WaitReady() {
-    s.cond.L.Lock()
-    defer s.cond.L.Unlock()
+	// Захватываем блокировку Mutex из Locker, связанной с объектом Cond
+	s.cond.L.Lock()
+	defer s.cond.L.Unlock()
 
-    for !s.ready {
-        s.cond.Wait()
+	// Ждем, пока флаг ready не будет установлен
+	for !s.ready {
+		// Ожидание на событии Cond, которое связано с объектом Cond
+		s.cond.Wait()
     }
 }
 
+// SetReady вызывается для установки флага ready в true и отправки сигнала всем ожидающим горутинам
 func (s *State) SetReady() {
-    s.cond.L.Lock()
-    defer s.cond.L.Unlock()
+// Захватываем блокировку Mutex из Locker, связанной с объектом Cond
+s.cond.L.Lock()
+defer s.cond.L.Unlock()
+// Устанавливаем флаг ready в true
+s.ready = true
 
-    s.ready = true
-    s.cond.Broadcast()
+// Отправляем сигнал всем ожидающим горутинам, используя метод Broadcast
+s.cond.Broadcast()
 }
 
+// Входная точка программы
 func main() {
-    s := NewState()
+// Создаем новый объект State
+s := NewState()
+// Запускаем анонимную горутину, которая ждет 500 миллисекунд, а затем устанавливает флаг ready в true
+go func() {
+	time.Sleep(500 * time.Millisecond)
+	fmt.Println("now ready")
+	s.SetReady()
+}()
 
-    go func() {
-        time.Sleep(500 * time.Millisecond)
-        fmt.Println("now ready")
-        s.SetReady()
-    }()
-
-    for i := 0; i < 5; i++ {
-        go func() {
-            s.WaitReady()
-            fmt.Println("ready!")
-        }()
-    }
-    time.Sleep(1000 * time.Millisecond)
+// Запускаем 5 горутин, которые ждут, пока флаг ready не будет установлен,
+// а затем выводят сообщение "ready!"
+for i := 0; i < 5; i++ {
+	go func() {
+		s.WaitReady()
+		fmt.Println("ready!")
+	}()
 }
+
+// Ожидаем 1000 миллисекунд, чтобы горутины имели достаточно времени для выполнения
+time.Sleep(1000 * time.Millisecond)
+}
+
+// Эта программа демонстрирует использование объекта типа `Cond` из пакета `sync` в GoLang. 
+// Она создает объект `State`, который содержит флаг `ready` и объект `Cond`, используемый для ожидания, пока флаг будет установлен. 
+// Затем она запускает одну анонимную горутину, которая устанавливает флаг `ready` в `true` после задержки в 500 миллисекунд, 
+// и пять горутин, которые ждут, пока флаг будет установлен, а затем выводят сообщение "ready!". Когда горутины закончили выполнение, 
+// программа завершается.
+
+
