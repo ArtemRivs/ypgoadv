@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -8,13 +9,13 @@ import (
 	"sync"
 )
 
-func healthCheck(url string, errCh chan<- error, wg *sync.WaitGroup, stopCh <-chan struct{}) {
+func healthCheck(ctx context.Context, url string, errCh chan<- error, wg *sync.WaitGroup) {
 	var defErr error
 	defer func() {
 		if defErr != nil {
 			select {
 			case errCh <- defErr:
-			case <-stopCh:
+			case <-ctx.Done():
 				log.Println("aborting", url)
 			}
 		}
@@ -35,7 +36,7 @@ func healthCheck(url string, errCh chan<- error, wg *sync.WaitGroup, stopCh <-ch
 func main() {
 	wg := &sync.WaitGroup{}
 	errCh := make(chan error)
-	stopCh := make(chan struct{})
+	ctx, cancel := context.WithCancel(context.Background())
 
 	hostsToCheck := []string{
 		"https://yandex.ru",
@@ -56,7 +57,7 @@ func main() {
 	for _, hostToCheck := range hostsToCheck {
 		log.Println("checking", hostToCheck)
 		wg.Add(1)
-		go healthCheck(hostToCheck, errCh, wg, stopCh)
+		go healthCheck(ctx, hostToCheck, errCh, wg)
 	}
 
 	go func() {
@@ -66,8 +67,8 @@ func main() {
 
 	if err := <-errCh; err != nil {
 		log.Println(err)
-		close(stopCh)
-		// time.Sleep(3 * time.Second)
+		//time.Sleep(2 * time.Second)
+		cancel()
 		return
 	}
 
