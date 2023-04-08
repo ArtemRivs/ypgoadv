@@ -18,6 +18,8 @@ func healthCheck(url string, errCh chan<- error, wg *sync.WaitGroup, stopCh <-ch
 				log.Println("aborting", url)
 			}
 		}
+
+		log.Println("done", url)
 		wg.Done()
 	}()
 
@@ -54,20 +56,22 @@ func main() {
 		"https://lamoda.ru",
 	}
 	for _, hostToCheck := range hostsToCheck {
-		log.Println("checking", hostToCheck)
+		// log.Println("checking", hostToCheck)
 		wg.Add(1)
 		go healthCheck(hostToCheck, errCh, wg, stopCh)
 	}
 
 	go func() {
 		wg.Wait()
+		log.Println("all gorutines is done")
 		close(errCh)
 	}()
 
 	if err := <-errCh; err != nil {
 		log.Println(err)
 		close(stopCh)
-		// time.Sleep(3 * time.Second)
+		// time.Sleep(5 * time.Second)
+		// log.Println("it's all folks!")
 		return
 	}
 
