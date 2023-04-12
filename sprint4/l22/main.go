@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 )
 
 func healthCheck(url string, errCh chan<- error, wg *sync.WaitGroup, stopCh <-chan struct{}) {
@@ -58,6 +59,8 @@ func main() {
 	if err := <-errCh; err != nil {
 		log.Println(err)
 		close(stopCh)
+		time.Sleep(15 * time.Second)
+
 		return
 	}
 
