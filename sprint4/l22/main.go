@@ -13,10 +13,9 @@ func healthCheck(url string, errCh chan<- error, wg *sync.WaitGroup, stopCh <-ch
 	defer func() {
 		if defErr != nil {
 			select {
-			// первая горутина, поймавшая ошибку, сможет записать в канал
-			case errCh <- defErr:
-			// остальные завершат работу, провалившись в этот case
-			case <-stopCh:
+			case errCh <- defErr: // первая горутина, поймавшая ошибку, сможет записать в канал
+				log.Println("send error to error channel")
+			case <-stopCh: // остальные завершат работу, провалившись в этот case
 				log.Println("aborting", url)
 			}
 		}
@@ -39,9 +38,9 @@ func main() {
 	errCh := make(chan error)
 	stopCh := make(chan struct{})
 	hostsToCheck := []string{
-		"https://google.com",
+		"https://g00gle.com",
 		"https://test000000001.com",
-		"https://yahoo.com",
+		"https://yahoo222.com",
 		"https://example.com",
 	}
 	for _, hostToCheck := range hostsToCheck {
