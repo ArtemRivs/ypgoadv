@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"sync"
 )
 
@@ -70,8 +71,17 @@ func fanOut(inputCh chan int, n int) []chan int {
 
 func newWorker(input, out chan int) {
 	go func() {
+
+		defer func() {
+			if x := recover(); x != nil {
+				newWorker(input, out)
+				log.Printf("runtime panic: %v", x)
+			}
+		}()
+
 		for num := range input {
-			out <- num / 2
+			out <- 100500 / (num - 1)
+			// out <- num / 2
 		}
 
 		close(out)
